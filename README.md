@@ -1,3 +1,13 @@
+---
+title: Cyber-Sentinel
+emoji: 🛡️
+colorFrom: blue
+colorTo: gray
+sdk: docker
+pinned: false
+app_port: 7860
+---
+
 # 🛡️ Cyber-Sentinel: Autonomous SOC Agent Environment
 
 > An OpenEnv-compliant environment simulating **real-world cybersecurity operations** for training and evaluating AI agents as autonomous Security Operations Center (SOC) analysts.
