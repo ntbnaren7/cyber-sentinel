@@ -85,7 +85,7 @@ class CyberSentinelEnvironment(
                 reward=0.0,
                 last_action_success=False,
                 last_action_error="Environment not initialized. Call /reset first.",
-                current_score=0.0,
+                current_score=0.01,
             )
 
         self._step_count += 1
@@ -151,7 +151,7 @@ class CyberSentinelEnvironment(
             max_steps=self._task.max_steps if self._task else 0,
             done=done,
             reward=reward,
-            current_score=self._task.score if self._task else 0.0,
+            current_score=self._task.score if self._task else 0.01,
             last_action_success=True,
             last_action_error=None,
             **task_fields,

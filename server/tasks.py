@@ -34,7 +34,7 @@ class BaseTask(ABC):
     def __init__(self, seed: int = 42):
         self._rng = random.Random(seed)
         self._step_count = 0
-        self._score = 0.0
+        self._score = 0.01
         self._done = False
         self._last_action_error: Optional[str] = None
         self._last_action_success = True
@@ -73,7 +73,7 @@ class BaseTask(ABC):
             self._last_action_success = False
             reward_delta = -0.02  # small penalty for invalid actions
 
-        self._score = max(0.0, min(1.0, self._score + reward_delta))
+        self._score = max(0.01, min(0.99, self._score + reward_delta))
 
         if self._step_count >= self.max_steps:
             self._done = True
