@@ -6,7 +6,6 @@ venv/
 .venv/
 .env
 .python-version
-uv.lock
 *.egg-info/
 build/
 dist/
