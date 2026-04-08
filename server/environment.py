@@ -97,17 +97,16 @@ class CyberSentinelEnvironment(
 
         reward_delta, done = self._task.step(action.action_type, params)
 
-        # The OpenEnv validator checks observation.reward as the "task score"
-        # and requires it to be strictly within (0, 1). We use the cumulative
-        # score (clamped to 0.01–0.99) for this field. The raw step delta is
-        # available in the observation's metadata for agent consumption.
+        # The OpenEnv validator sums observation.reward over the episode.
+        # We now emit exact, pre-clamped deltas from the task, so sum(rewards)
+        # perfectly tracks the internally bounded score [0.01, 0.99].
         obs = self._make_observation(
-            reward=self._task.score,
+            reward=reward_delta,
             done=done,
         )
         obs.last_action_success = self._task._last_action_success
         obs.last_action_error = self._task._last_action_error
-        obs.metadata = {"reward_delta": reward_delta}
+        obs.metadata = {"current_score": self._task.score}
 
         return obs
 

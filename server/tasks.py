@@ -66,19 +66,25 @@ class BaseTask(ABC):
             self._last_action_success = False
             return 0.0, True
 
+        base_bump = 0.01 if self._step_count == 1 else 0.0
+
         try:
-            reward_delta = self.process_action(action_type, params)
+            raw_delta = self.process_action(action_type, params)
         except InvalidActionError as e:
             self._last_action_error = str(e)
             self._last_action_success = False
-            reward_delta = -0.02  # small penalty for invalid actions
+            raw_delta = -0.02  # small penalty for invalid actions
 
-        self._score = max(0.01, min(0.99, self._score + reward_delta))
+        proposed_score = self._score + base_bump + raw_delta
+        clamped_score = max(0.01, min(0.99, proposed_score))
+        actual_delta = clamped_score - self._score
+
+        self._score = clamped_score
 
         if self._step_count >= self.max_steps:
             self._done = True
 
-        return reward_delta, self._done
+        return actual_delta, self._done
 
     @property
     def score(self) -> float:
@@ -292,7 +298,7 @@ class AlertTriageTask(BaseTask):
         correct = self._ground_truth[alert_id]
 
         if classification == correct:
-            reward = 1.0 / self._total
+            reward = 0.98 / self._total
         elif correct == "malicious" and classification == "benign":
             reward = -0.15  # false negative - DANGEROUS
         elif correct == "benign" and classification == "malicious":
@@ -530,7 +536,7 @@ class ForensicHuntingTask(BaseTask):
             self._investigation_log.append(
                 f"☠ KILLED: Malicious process PID {process_id} on {host_id}"
             )
-            return 0.25
+            return 0.98 / 3.0  # About 0.326 per correct kill
         else:
             self._investigation_log.append(
                 f"❌ KILLED: Legitimate process PID {process_id} on {host_id} — WRONG TARGET"
@@ -563,7 +569,7 @@ class ForensicHuntingTask(BaseTask):
             # Check if fully remediated
             if self._process_killed:
                 self._done = True
-            return 0.40
+            return 0.98 / 3.0  # About 0.326 per correct isolation
         else:
             self._investigation_log.append(
                 f"⚠ ISOLATED: Clean host {host_id} — BUSINESS DISRUPTION"
@@ -821,7 +827,7 @@ class CloudHardeningTask(BaseTask):
         self._fixed_vulns.add(matching_vuln["vuln_id"])
         self._fix_order.append(matching_vuln["severity"])
 
-        reward = 0.15  # base per-fix reward
+        reward = (0.98 - 0.05) / self._total_vulns  # base per-fix reward (leaving 0.05 for order bonus)
 
         # Priority bonus: check if fixing in severity order
         severity_rank = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3}

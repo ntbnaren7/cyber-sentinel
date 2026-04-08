@@ -95,6 +95,9 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down Cyber-Sentinel Environment server.")
 
 
+# ── Build version marker (used to verify deployment) ──
+BUILD_VERSION = "0.1.3-score-fix"
+
 # ── FastAPI app ─────────────────────────────────────────────────────────
 app = FastAPI(
     lifespan=lifespan,
@@ -104,7 +107,7 @@ app = FastAPI(
         "operations: SIEM alert triage, forensic threat hunting, and cloud "
         "perimeter hardening."
     ),
-    version="0.1.0",
+    version=BUILD_VERSION,
 )
 
 app.add_middleware(
@@ -120,6 +123,12 @@ app.add_middleware(
 async def root():
     from fastapi.responses import RedirectResponse
     return RedirectResponse(url="/docs")
+
+
+@app.get("/version")
+async def version():
+    """Returns the build version to verify correct deployment."""
+    return {"version": BUILD_VERSION}
 
 
 # ═══════════════════════════════════════════════════════════════════════════
