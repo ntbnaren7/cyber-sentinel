@@ -219,7 +219,7 @@ def run_task(env: EnvClient, task_name: str) -> bool:
 
             step_resp = env.step(action)
             observation = step_resp.get("observation", step_resp)
-            reward = step_resp.get("reward", 0.0)
+            reward = step_resp.get("reward_delta", step_resp.get("reward", 0.0))
             if reward is None:
                 reward = 0.0
             done = step_resp.get("done", False)

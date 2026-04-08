@@ -69,7 +69,7 @@ class CyberSentinelEnvironment(
         self._task = task_cls(seed=self._seed)
         self._step_count = 0
 
-        return self._make_observation(reward=None, done=False)
+        return self._make_observation(reward=self._task.score, done=False)
 
     def step(
         self,
@@ -82,7 +82,7 @@ class CyberSentinelEnvironment(
                 task_name=self._task_name,
                 task_description="Environment not reset. Call reset() first.",
                 done=True,
-                reward=0.0,
+                reward=0.01,
                 last_action_success=False,
                 last_action_error="Environment not initialized. Call /reset first.",
                 current_score=0.01,
@@ -97,13 +97,17 @@ class CyberSentinelEnvironment(
 
         reward_delta, done = self._task.step(action.action_type, params)
 
+        # The OpenEnv validator checks observation.reward as the "task score"
+        # and requires it to be strictly within (0, 1). We use the cumulative
+        # score (clamped to 0.01–0.99) for this field. The raw step delta is
+        # available in the observation's metadata for agent consumption.
         obs = self._make_observation(
             reward=self._task.score,
             done=done,
         )
         obs.last_action_success = self._task._last_action_success
         obs.last_action_error = self._task._last_action_error
-        obs.reward = reward_delta
+        obs.metadata = {"reward_delta": reward_delta}
 
         return obs
 

@@ -172,6 +172,7 @@ async def env_step(req: StatefulStepRequest):
     return {
         "observation": obs.model_dump(),
         "reward": obs.reward,
+        "reward_delta": obs.metadata.get("reward_delta", 0.0) if obs.metadata else 0.0,
         "done": obs.done,
     }
 
