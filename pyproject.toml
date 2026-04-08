@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openenv-corp-ops"
+version = "0.1.0"
+description = "Corporate Operations Environment for OpenEnv – real-world enterprise task simulation (email triage, data reconciliation, resource scheduling)"
+requires-python = ">=3.10"
+dependencies = [
+    "openenv-core>=0.2.0",
+    "openenv>=0.1.13",
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.27.0",
+    "pydantic>=2.5.0",
+    "httpx>=0.25.2",
+    "python-dotenv>=1.0.0",
+    "openai>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]
+
+[project.scripts]
+server = "server.app:main"
+
+[tool.setuptools]
+include-package-data = true
+packages = ["server"]
+
+[tool.setuptools.package-data]
+server = ["**/*.yaml", "**/*.yml", "**/*.json"]
