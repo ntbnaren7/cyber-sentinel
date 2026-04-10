@@ -258,11 +258,11 @@ def run_task(env: EnvClient, task_name: str) -> bool:
                 history = history[-16:]
 
         if isinstance(observation, dict):
-            score = observation.get("current_score", 0.01)
+            score = observation.get("current_score", 0.1)
         else:
-            score = getattr(observation, "current_score", 0.01)
+            score = getattr(observation, "current_score", 0.1)
 
-        success = done and score > 0.01
+        success = done and score > 0.1
 
     except Exception:
         traceback.print_exc(file=sys.stderr)

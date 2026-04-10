@@ -110,7 +110,7 @@ class CyberSentinelObservation(Observation):
         None, description="Error message if the last action was invalid"
     )
     current_score: float = Field(
-        0.01, description="Current cumulative score in (0.0, 1.0)"
+        0.1, description="Current cumulative score in (0.0, 1.0)"
     )
 
     # --- SIEM Alert Triage ---
@@ -160,7 +160,7 @@ class CyberSentinelState(State):
     task_data: Dict[str, Any] = Field(
         default_factory=dict, description="Full internal task state"
     )
-    score: float = Field(0.01, description="Current score (0.0, 1.0)")
+    score: float = Field(0.1, description="Current score (0.0, 1.0)")
     done: bool = Field(False, description="Whether the episode is finished")
 
 

@@ -69,7 +69,7 @@ class CyberSentinelEnvironment(
         self._task = task_cls(seed=self._seed)
         self._step_count = 0
 
-        return self._make_observation(reward=self._task.score, done=False)
+        return self._make_observation(reward=0.0, done=False)
 
     def step(
         self,
@@ -85,7 +85,7 @@ class CyberSentinelEnvironment(
                 reward=0.01,
                 last_action_success=False,
                 last_action_error="Environment not initialized. Call /reset first.",
-                current_score=0.01,
+                current_score=0.1,
             )
 
         self._step_count += 1
@@ -99,7 +99,7 @@ class CyberSentinelEnvironment(
 
         # The OpenEnv validator sums observation.reward over the episode.
         # We now emit exact, pre-clamped deltas from the task, so sum(rewards)
-        # perfectly tracks the internally bounded score [0.01, 0.99].
+        # perfectly tracks the internally bounded score [0.1, 0.9].
         obs = self._make_observation(
             reward=reward_delta,
             done=done,
@@ -154,7 +154,7 @@ class CyberSentinelEnvironment(
             max_steps=self._task.max_steps if self._task else 0,
             done=done,
             reward=reward,
-            current_score=self._task.score if self._task else 0.01,
+            current_score=self._task.score if self._task else 0.1,
             last_action_success=True,
             last_action_error=None,
             **task_fields,
