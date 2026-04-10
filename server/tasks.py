@@ -71,15 +71,19 @@ class BaseTask(ABC):
         except InvalidActionError as e:
             self._last_action_error = str(e)
             self._last_action_success = False
-            raw_delta = -0.02  # small penalty for invalid actions
+            raw_delta = 0.0  # Zero progress for invalid actions
 
-        proposed_score = self._score + raw_delta
+        # Monotonicity: score never decreases
+        proposed_score = max(self._score, self._score + raw_delta)
         clamped_score = max(0.1, min(0.9, proposed_score))
         
-        if self._step_count == 1:
-            actual_delta = clamped_score
-        else:
-            actual_delta = clamped_score - self._score
+        # Padded Monotonic Delta: always strictly positive (>0)
+        epsilon = 1e-5
+        
+        raw_actual = clamped_score - self._score
+
+        # Enforce strict >0
+        actual_delta = max(epsilon, raw_actual)
 
         self._score = clamped_score
 
@@ -302,9 +306,9 @@ class AlertTriageTask(BaseTask):
         if classification == correct:
             reward = 0.80 / self._total
         elif correct == "malicious" and classification == "benign":
-            reward = -0.15  # false negative - DANGEROUS
+            reward = 0.0  # false negative - Zero Progress
         elif correct == "benign" and classification == "malicious":
-            reward = -0.05  # false positive - wasteful
+            reward = 0.0  # false positive - Zero Progress
         else:
             reward = 0.0  # partial mismatch
 
@@ -543,7 +547,7 @@ class ForensicHuntingTask(BaseTask):
             self._investigation_log.append(
                 f"❌ KILLED: Legitimate process PID {process_id} on {host_id} — WRONG TARGET"
             )
-            return -0.10
+            return 0.0
 
     def _handle_isolate(self, params: Dict[str, Any]) -> float:
         host_id = params.get("host_id")
@@ -576,7 +580,7 @@ class ForensicHuntingTask(BaseTask):
             self._investigation_log.append(
                 f"⚠ ISOLATED: Clean host {host_id} — BUSINESS DISRUPTION"
             )
-            return -0.20
+            return 0.0
 
     def get_observation_fields(self) -> Dict[str, Any]:
         return {
@@ -863,9 +867,9 @@ class CloudHardeningTask(BaseTask):
                     if svc:
                         svc["online"] = False
                         svc["ports_blocked"] = critical
-                    return -0.30  # service outage penalty
+                    return 0.0  # service outage penalty (Zero Progress)
 
-        return -0.05  # generic wrong action penalty
+        return 0.0  # generic wrong action penalty
 
     def get_observation_fields(self) -> Dict[str, Any]:
         return {

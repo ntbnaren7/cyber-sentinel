@@ -13,8 +13,8 @@ def test_perfect_agent(task_name):
     task = task_cls(seed=42)
     
     # Simulate making observation
-    # First Reset emits 0.0
-    all_rewards = [0.0]
+    # First Reset emits 0.1
+    all_rewards = [0.1]
     
     if task_name == "alert_triage":
         gt = task._ground_truth
@@ -60,13 +60,15 @@ def test_perfect_agent(task_name):
     s = sum(all_rewards)
     print(f"Total accumulated rewards: {s:.6f}")
     assert 0 < s < 1.0, f"Score {s} out of bounds!"
+    for r in all_rewards:
+        assert r > 0.0, f"Individual reward {r} is <= 0! This breaks SPM."
     
 def test_worst_agent(task_name):
     print(f"\n--- Testing Worst Agent: {task_name} ---")
     task_cls = TASK_REGISTRY[task_name]
     task = task_cls(seed=42)
     
-    all_rewards = [0.0]
+    all_rewards = [0.1]
     
     if task_name == "alert_triage":
         gt = task._ground_truth
@@ -100,6 +102,8 @@ def test_worst_agent(task_name):
     s = sum(all_rewards)
     print(f"Total accumulated rewards: {s:.6f}")
     assert 0 < s < 1.0, f"Score {s} out of bounds!"
+    for r in all_rewards:
+        assert r > 0.0, f"Individual reward {r} is <= 0! This breaks SPM."
 
 if __name__ == "__main__":
     for t in TASK_REGISTRY.keys():

@@ -69,7 +69,7 @@ class CyberSentinelEnvironment(
         self._task = task_cls(seed=self._seed)
         self._step_count = 0
 
-        return self._make_observation(reward=0.0, done=False)
+        return self._make_observation(reward=0.1, done=False)
 
     def step(
         self,
